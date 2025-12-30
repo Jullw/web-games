@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tetris</title>
+  </head>
+  <body class="h-full m-0">
+    <div class="h-full flex justify-center items-center">
+      <canvas id="game" class="border-1 border-black"></canvas>
+    </div>
+    <script>
+      const canvas = document.getElementById("game");
+      let particles;
+
+      function setup() {
+        createCanvas(800, 600, WEBGL, canvas);
+
+        particles = buildGeometry(createParticles);
+        describe(
+          "Ten white spheres placed randomly against a gray background. A box encloses the spheres."
+        );
+      }
+
+      function draw() {
+        background(50);
+
+        // Enable orbiting with the mouse.
+        orbitControl();
+
+        // Turn on the lights.
+        lights();
+
+        // Style the particles.
+        noStroke();
+        fill(255);
+
+        // Draw the particles.
+        model(particles);
+
+        // Calculate the bounding box.
+        let bbox = particles.calculateBoundingBox();
+
+        // Translate to the bounding box's center.
+        translate(bbox.offset.x, bbox.offset.y, bbox.offset.z);
+
+        // Style the bounding box.
+        stroke(255);
+        noFill();
+
+        // Draw the bounding box.
+        box(bbox.size.x, bbox.size.y, bbox.size.z);
+      }
+
+      function createParticles() {
+        for (let i = 0; i < 10; i += 1) {
+          // Calculate random coordinates.
+          let x = randomGaussian(0, 15);
+          let y = randomGaussian(0, 15);
+          let z = randomGaussian(0, 15);
+
+          push();
+          // Translate to the particle's coordinates.
+          translate(x, y, z);
+          // Draw the particle.
+          sphere(3);
+          pop();
+        }
+      }
+    </script>
+  </body>
+</html>
