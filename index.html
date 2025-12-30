@@ -16,58 +16,22 @@
       let particles;
 
       function setup() {
-        createCanvas(800, 600, WEBGL, canvas);
-
-        particles = buildGeometry(createParticles);
-        describe(
-          "Ten white spheres placed randomly against a gray background. A box encloses the spheres."
-        );
+        createCanvas(600, 600, canvas);
+        describe("Tetris");
       }
 
       function draw() {
         background(50);
 
-        // Enable orbiting with the mouse.
-        orbitControl();
-
-        // Turn on the lights.
-        lights();
-
-        // Style the particles.
-        noStroke();
-        fill(255);
-
-        // Draw the particles.
-        model(particles);
-
-        // Calculate the bounding box.
-        let bbox = particles.calculateBoundingBox();
-
-        // Translate to the bounding box's center.
-        translate(bbox.offset.x, bbox.offset.y, bbox.offset.z);
-
-        // Style the bounding box.
-        stroke(255);
         noFill();
+        rect(50, 50, 25);
+        stroke(255);
 
-        // Draw the bounding box.
-        box(bbox.size.x, bbox.size.y, bbox.size.z);
-      }
+        noFill();
+        rect(400, 0, 200, 600);
 
-      function createParticles() {
-        for (let i = 0; i < 10; i += 1) {
-          // Calculate random coordinates.
-          let x = randomGaussian(0, 15);
-          let y = randomGaussian(0, 15);
-          let z = randomGaussian(0, 15);
-
-          push();
-          // Translate to the particle's coordinates.
-          translate(x, y, z);
-          // Draw the particle.
-          sphere(3);
-          pop();
-        }
+        fill(255);
+        rect(400, 200, 200, 400);
       }
     </script>
   </body>
