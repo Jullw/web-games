@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en" class="h-full">
   <head>
     <meta charset="utf-8" />
@@ -9,11 +9,89 @@
   </head>
   <body class="h-full m-0">
     <div class="h-full flex justify-center items-center">
-      <canvas id="game" class="border-1 border-black"></canvas>
+      <canvas id="game"></canvas>
     </div>
-    <script>
+    <!-- <script>
+      const grid = [];
+
+      for (let i = 0; i < 30; i++) {
+        grid[i] = [];
+        for (let ii = 0; ii < 20; ii++) {
+          if (i === 1 && ii === 1) {
+            grid[i][ii] = 1;
+          } else {
+            grid[i][ii] = 0;
+          }
+        }
+      }
+
+      class Tetromino {
+        constructor(x, y, type) {
+          this.x = x;
+          this.y = y;
+          this.type = type; // "line" | "square" | "T" | "L" | "skew"
+          this.rotation = 0;
+        }
+
+        rotate(direction) {
+          // direction: "clockwise" | "counterclockwise"
+          this.rotation = (this.rotation + 90) % 360;
+        }
+
+        hardDrop() {
+          this.rotation = (this.rotation + 90) % 360;
+        }
+
+        moveHorizontally(direction) {
+          if (direction === "left") {
+            this.x -= 20;
+          }
+          if (direction === "right") {
+            this.x += 20;
+          }
+        }
+
+        moveVertically() {
+          this.y += 20;
+        }
+
+        canMove() {
+          return true;
+        }
+
+        draw() {
+          if (this.type === "line") {
+            stroke(255);
+            fill(55, 45, 224);
+            rect(20, 20, 20, 20);
+            rect(20, 40, 20, 20);
+            rect(20, 60, 20, 20);
+            rect(20, 80, 20, 20);
+          }
+        }
+      }
+
       const canvas = document.getElementById("game");
-      let particles;
+      let tetromino = new Tetromino(100, 100, "line");
+
+      let d = 0;
+      let x = -50;
+      let y = 150;
+      let rotation = 0;
+      let step = 0;
+      let speed = 10;
+
+      let currentPlace = { x: 0, y: 0 };
+      let currentPiece = I;
+
+      let I = [
+        [0, 0, 0, 0],
+        [1, 1, 1, 1],
+        [0, 0, 0, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let gamePieces = [I];
 
       function setup() {
         createCanvas(600, 600, canvas);
@@ -21,18 +99,235 @@
       }
 
       function draw() {
-        background(50);
+        gameLayout();
 
-        noFill();
-        rect(50, 50, 25);
-        stroke(255);
+        currentPlace = { x: currentPlace.x + 20, y: currentPlace.y };
 
-        noFill();
+        grid.forEach((array, x) => {
+          array.forEach((element, y) => {
+            stroke(255);
+            element === 1 ? fill(224, 45, 55) : fill(200, 180, 150);
+            rect(y * 20, x * 20, 20, 20);
+          });
+        });
+
+        // tetromino.moveVertically();
+
+        // if (x < 500) {
+        //   d += (deltaTime / 1000) * speed;
+        //   if (round(d) > step) {
+        //     x += 20;
+        //     step = round(d);
+        //   }
+        // }
+
+        // translate(200, 200);
+        // rotate(step * 0.5);
+        // stroke(255);
+        // fill(55, 45, 224);
+        // rect(20, x, 20, 20);
+        // rect(20, x + 20, 20, 20);
+        // rect(20, x + 40, 20, 20);
+        // rect(20, x + 60, 20, 20);
+      }
+
+      // Draw main game area and side panel for score/next piece
+      const gameLayout = () => {
+        fill(80);
         rect(400, 0, 200, 600);
 
         fill(255);
         rect(400, 200, 200, 400);
+      };
+    </script> -->
+
+    <script lang="ts">
+      const canvas = document.getElementById("game");
+
+      let pieceXY = { x: 10, y: 0 };
+
+      let lastCoordinates = [{ x: 0, y: 0 }];
+
+      document.addEventListener("keydown", (event) => {
+        const keyName = event.key;
+        if (canMovePiece(keyName)) {
+          if (keyName === "ArrowLeft") {
+            pieceXY.x -= 1;
+          }
+          if (keyName === "ArrowRight") {
+            pieceXY.x += 1;
+          }
+          if (keyName === "ArrowUp") {
+            pieceXY.y -= 1;
+          }
+          if (keyName === "ArrowDown") {
+            pieceXY.y += 1;
+          }
+
+          if (keyName === "z") {
+            rotateMatrix(currentPiece, "left");
+          }
+
+          if (keyName === "x") {
+            rotateMatrix(currentPiece, "right");
+          }
+        }
+      });
+
+      const rotateMatrix = (matrix, direction) => {
+        const result = Array.from({ length: 4 }, () => Array(4).fill(0));
+
+        currentPiece = matrix.map((row, y) =>
+          row.map((val, x) => {
+            return direction === "left" ? matrix[x][3 - y] : matrix[3 - x][y];
+          }),
+        );
+      };
+
+      const canMovePiece = (event) => {
+        let move = true;
+
+        lastCoordinates.forEach(({ x, y }) => {
+          if (event === "ArrowLeft" && x - 1 < 0) {
+            move = false;
+          }
+          if (event === "ArrowRight" && x + 1 > BOARD_WIDTH - 1) {
+            move = false;
+          }
+          if (event === "ArrowUp" && y - 1 < 0) {
+            move = false;
+          }
+          if (event === "ArrowDown" && y + 1 >= BOARD_HEIGHT) {
+            move = false;
+          }
+        });
+
+        return move;
+      };
+
+      let I = [
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+      ];
+
+      let O = [
+        [0, 0, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let Z = [
+        [0, 0, 1, 0],
+        [0, 1, 1, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let S = [
+        [0, 1, 0, 0],
+        [0, 1, 1, 0],
+        [0, 0, 1, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let L = [
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let J = [
+        [0, 0, 1, 0],
+        [0, 0, 1, 0],
+        [0, 1, 1, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let T = [
+        [0, 1, 0, 0],
+        [0, 1, 1, 0],
+        [0, 1, 0, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let rotate = 0;
+
+      let currentPiece = J;
+      let gamePieces = [I];
+
+      const BOARD_WIDTH = 20;
+      const BOARD_HEIGHT = 30;
+
+      const board = Array.from({ length: BOARD_HEIGHT }, () =>
+        Array(BOARD_WIDTH).fill(0),
+      );
+
+      function setup() {
+        createCanvas(600, 600, canvas);
+        describe("Tetris");
       }
+
+      function draw() {
+        gameLayout();
+        // pieceXY.y += 1;
+        if (pieceXY.y >= BOARD_HEIGHT) {
+          pieceXY.y = 1;
+        }
+        drawPiece(board, currentPiece);
+        drawBoard(board);
+      }
+
+      // Draw main game area and side panel for score/next piece
+      const gameLayout = () => {
+        fill(80);
+        rect(400, 0, 200, 600);
+
+        fill(255);
+        rect(400, 200, 200, 400);
+
+        textSize(16);
+        fill("green");
+        text(`${JSON.stringify(lastCoordinates, null, " ")}`, 420, 30);
+      };
+
+      const drawBoard = (board) => {
+        board.forEach((array, y) => {
+          array.forEach((element, x) => {
+            stroke(255);
+            element === 1 ? fill(100, 145, 55) : fill(200, 180, 150);
+            // element === 2 ? fill(200, 145, 55) : null;
+            rect(x * 20, y * 20, 20, 20);
+            textSize(6);
+            fill("yellow");
+            text(`${y}, ${x} `, x * 20, y * 20 + 10);
+          });
+        });
+      };
+
+      const drawPiece = (board, piece) => {
+        if (lastCoordinates.length > 0) {
+          lastCoordinates.map(({ x, y }) => {
+            board[y][x] = 0;
+          });
+        }
+
+        lastCoordinates = [];
+        for (let y = 0; y < 4; y++) {
+          for (let x = 0; x < 4; x++) {
+            if (piece[y][x] === 1) {
+              const boardY = pieceXY.y + y;
+              const boardX = pieceXY.x + x;
+
+              board[boardY][boardX] = 1;
+              lastCoordinates.push({ x: boardX, y: boardY });
+            }
+          }
+        }
+      };
     </script>
   </body>
 </html>
