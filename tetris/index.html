@@ -1,0 +1,272 @@
+<!doctype html>
+<html lang="en" class="h-full">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tetris</title>
+  </head>
+  <body class="h-full m-0">
+    <div class="h-full flex justify-center items-center">
+      <canvas id="game"></canvas>
+    </div>
+    <script lang="ts">
+      const canvas = document.getElementById("game");
+
+      let pieceXY = { x: 5, y: 0 };
+      let lastCoordinates = [{ x: 0, y: 0 }];
+
+      document.addEventListener("keydown", (event) => {
+        const keyName = event.key;
+        let y = pieceXY.y;
+        let x = pieceXY.x;
+
+        if (keyName === "ArrowLeft") {
+          x -= 1;
+        }
+        if (keyName === "ArrowRight") {
+          x += 1;
+        }
+        if (keyName === "ArrowUp") {
+          y -= 1;
+        }
+        if (keyName === "ArrowDown") {
+          y += 1;
+        }
+
+        if (!checkCollision(y, x, currentPiece)) {
+          pieceXY.y = y;
+          pieceXY.x = x;
+        }
+
+        if (keyName === "z") {
+          const piece = rotatePiece(currentPiece, "left");
+          if (checkCollision(pieceXY.y, pieceXY.x, piece) === false) {
+            currentPiece = piece;
+          }
+        }
+
+        if (keyName === "x") {
+          const piece = rotatePiece(currentPiece, "right");
+          if (checkCollision(pieceXY.y, pieceXY.x, piece) === false) {
+            currentPiece = piece;
+          }
+        }
+      });
+
+      const rotatePiece = (matrix, direction) => {
+        return matrix.map((row, y) =>
+          row.map((val, x) => {
+            return direction === "left" ? matrix[x][3 - y] : matrix[3 - x][y];
+          }),
+        );
+      };
+
+      const checkCollision = (posY, posX, matrix) => {
+        let collision = false;
+
+        for (let y = 0; y < 4; y++) {
+          for (let x = 0; x < 4; x++) {
+            if (matrix[y][x] > 0) {
+              let yy = posY + y;
+              let xx = posX + x;
+
+              if (
+                pointOutsideBoard(yy, xx) ||
+                (board[yy][xx] > 0 && // can be removed
+                  lastCoordinates.findIndex(
+                    (coord) => coord.x === xx && coord.y === yy,
+                  ) === -1)
+              ) {
+                collision = true;
+                break;
+              }
+            }
+          }
+        }
+
+        return collision;
+      };
+
+      const pointOutsideBoard = (y, x) => {
+        return x >= BOARD_WIDTH || x < 0 || y >= BOARD_HEIGHT || y < 0;
+      };
+
+      let I = [
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+        [0, 1, 0, 0],
+      ];
+
+      let O = [
+        [0, 0, 0, 0],
+        [0, 2, 2, 0],
+        [0, 2, 2, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let Z = [
+        [0, 0, 3, 0],
+        [0, 3, 3, 0],
+        [0, 3, 0, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let S = [
+        [0, 4, 0, 0],
+        [0, 4, 4, 0],
+        [0, 0, 4, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let L = [
+        [0, 5, 0, 0],
+        [0, 5, 0, 0],
+        [0, 5, 5, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let J = [
+        [0, 0, 6, 0],
+        [0, 0, 6, 0],
+        [0, 6, 6, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let T = [
+        [0, 7, 0, 0],
+        [0, 7, 7, 0],
+        [0, 7, 0, 0],
+        [0, 0, 0, 0],
+      ];
+
+      let rotate = 0;
+
+      let currentPiece = J;
+      let gamePieces = [I, O, Z, S, L, J, T];
+      // let debugPoint = { x: 0, y: 0 };
+
+      const BOARD_HEIGHT = 20;
+      const BOARD_WIDTH = 10;
+
+      const board = Array.from({ length: BOARD_HEIGHT }, () =>
+        Array(BOARD_WIDTH).fill(0),
+      );
+      board[15][10] = 1;
+
+      function setup() {
+        createCanvas(600, 600, canvas);
+        describe("Tetris");
+      }
+
+      let acc = 0;
+      let lockPiece = false;
+      function draw() {
+        gameLayout();
+        lockPiece = false;
+
+        acc += min(deltaTime, 50);
+        if (acc > 100) {
+          if (checkCollision(pieceXY.y + 1, pieceXY.x, currentPiece)) {
+            lockPiece = true;
+          } else {
+            pieceXY.y += 1;
+          }
+          acc = 0;
+        }
+
+        drawPiece(board, currentPiece);
+
+        if (lockPiece) {
+          pieceXY.y = 1;
+          pieceXY.x = 5;
+          lastCoordinates = [];
+          currentPiece = gamePieces[Math.floor(Math.random() * 6)];
+          checkFullRow();
+        }
+
+        drawBoard(board);
+      }
+
+      const checkFullRow = () => {
+        let clearedLines = 0;
+
+        for (let y = board.length - 1; y >= 0; y--) {
+          if (isFullRow(board[y])) {
+            board.splice(y, 1);
+            board.unshift(new Array(board[0].length).fill(0)); // uusi tyhjä rivi ylös
+            clearedLines++;
+            y++; // tarkista sama y uudestaan
+          }
+        }
+      };
+
+      function isFullRow(row) {
+        return row.every((cell) => cell !== 0);
+      }
+
+      // Draw main game area and side panel for score/next piece
+      const gameLayout = () => {
+        fill(80);
+        rect(400, 0, 200, 600);
+
+        fill(255);
+        rect(400, 200, 200, 400);
+
+        textSize(16);
+        fill("green");
+        text(`${JSON.stringify(lastCoordinates, null, " ")}`, 420, 30);
+        text(`${JSON.stringify(pieceXY, null, " ")}`, 420, 400);
+      };
+
+      const drawBoard = (board) => {
+        // board[debugPoint.y][debugPoint.x] = 0;
+        // debugPoint.x = pieceXY.x;
+        // debugPoint.y = pieceXY.y;
+
+        // board[debugPoint.y][debugPoint.x] = 3;
+
+        board.forEach((array, y) => {
+          array.forEach((element, x) => {
+            stroke(255);
+            if (element === 0) fill(200, 180, 150);
+            if (element === 1) fill(3, 65, 174);
+            if (element === 2) fill(255, 213, 0);
+            if (element === 3) fill(255, 0, 0);
+            if (element === 4) fill(114, 203, 59);
+            if (element === 5) fill(255, 151, 28);
+            if (element === 6) fill(3, 65, 174);
+            if (element === 7) fill(128, 0, 128);
+            rect(x * 20, y * 20, 20, 20);
+            textSize(6);
+            fill("yellow");
+            text(`${y}, ${x} `, x * 20, y * 20 + 10);
+          });
+        });
+      };
+
+      const drawPiece = (board, piece) => {
+        if (lastCoordinates.length > 0) {
+          lastCoordinates.map(({ x, y }) => {
+            board[y][x] = 0;
+          });
+        }
+
+        lastCoordinates = [];
+        for (let y = 0; y < 4; y++) {
+          for (let x = 0; x < 4; x++) {
+            const boardY = pieceXY.y + y;
+            const boardX = pieceXY.x + x;
+
+            if (piece[y][x] > 0 && !pointOutsideBoard(boardY, boardX)) {
+              board[boardY][boardX] = piece[y][x];
+              lastCoordinates.push({ x: boardX, y: boardY });
+            }
+          }
+        }
+      };
+    </script>
+  </body>
+</html>
