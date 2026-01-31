@@ -1,2 +1,2 @@
-# web-games
-Web based games
+# Web games
+
