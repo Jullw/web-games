@@ -122,9 +122,19 @@
           </div>
         </div>
         <div id="gameOver" class="text-center flex flex-col">
-          <div class="text-red-500">Game Over!</div>
-          <div class="text-orange-400 mt-1">Score: 90</div>
-          <div id="goToMenu" class="mt-2 cursor-pointer">Go to menu</div>
+          <div class="text-red-500 mt-2">Game Over!</div>
+          <div class="text-orange-400 mt-1 flex gap-1 justify-center">
+            Score:<span id="gameOverScore"></span>
+          </div>
+          <div id="goToMenu" class="mt-4 cursor-pointer hover:text-[darkgreen]">
+            Go to menu
+          </div>
+          <div
+            id="playAgain"
+            class="mt-2 cursor-pointer text-green-500 hover:text-[darkgreen]"
+          >
+            Play again!
+          </div>
         </div>
       </div>
 
@@ -152,6 +162,7 @@
       const mainDiv = document.getElementById("mainDiv");
       const settingsField = document.getElementById("settingsField");
       const gameOverField = document.getElementById("gameOver");
+      const gameOverScore = document.getElementById("gameOverScore");
 
       const speedValue = document.getElementById("speedValue");
       const cellSizeValue = document.getElementById("cellSizeValue");
@@ -168,6 +179,12 @@
             setup();
           }
 
+          menu.remove();
+          play = true;
+        });
+
+        document.getElementById("playAgain").addEventListener("click", () => {
+          setup();
           menu.remove();
           play = true;
         });
@@ -254,38 +271,38 @@
 
       handleKeyPresses();
 
-      const handleTouch = () => {
-        let touchStartX = 0;
-        let touchStartY = 0;
+      // const handleTouch = () => {
+      //   let touchStartX = 0;
+      //   let touchStartY = 0;
 
-        document.addEventListener("touchstart", (event) => {
-          const touch = event.touches[0];
-          touchStartX = touch.clientX;
-          touchStartY = touch.clientY;
-        });
+      //   document.addEventListener("touchstart", (event) => {
+      //     const touch = event.touches[0];
+      //     touchStartX = touch.clientX;
+      //     touchStartY = touch.clientY;
+      //   });
 
-        document.addEventListener("touchend", (event) => {
-          const touch = event.changedTouches[0];
-          const deltaX = touch.clientX - touchStartX;
-          const deltaY = touch.clientY - touchStartY;
+      //   document.addEventListener("touchend", (event) => {
+      //     const touch = event.changedTouches[0];
+      //     const deltaX = touch.clientX - touchStartX;
+      //     const deltaY = touch.clientY - touchStartY;
 
-          if (Math.abs(deltaX) > Math.abs(deltaY)) {
-            if (deltaX > 0 && isValidDirection("RIGHT")) {
-              direction = "RIGHT";
-            } else if (deltaX < 0 && isValidDirection("LEFT")) {
-              direction = "LEFT";
-            }
-          } else {
-            if (deltaY > 0 && isValidDirection("DOWN")) {
-              direction = "DOWN";
-            } else if (deltaY < 0 && isValidDirection("UP")) {
-              direction = "UP";
-            }
-          }
-        });
-      };
+      //     if (Math.abs(deltaX) > Math.abs(deltaY)) {
+      //       if (deltaX > 0 && isValidDirection("RIGHT")) {
+      //         direction = "RIGHT";
+      //       } else if (deltaX < 0 && isValidDirection("LEFT")) {
+      //         direction = "LEFT";
+      //       }
+      //     } else {
+      //       if (deltaY > 0 && isValidDirection("DOWN")) {
+      //         direction = "DOWN";
+      //       } else if (deltaY < 0 && isValidDirection("UP")) {
+      //         direction = "UP";
+      //       }
+      //     }
+      //   });
+      // };
 
-      handleTouch();
+      // handleTouch();
 
       const cell = 20;
       const BOARD_HEIGHT = Math.floor(600 / cell);
@@ -309,6 +326,7 @@
       boardColorInput2.value = boardColor2;
       snakeColorInput.value = snakeColor;
       foodColorInput.value = foodColor;
+      scoreField.innerText = score;
 
       const board = Array.from({ length: BOARD_HEIGHT }, () =>
         Array(BOARD_WIDTH).fill(0),
@@ -341,6 +359,7 @@
           mainDiv.appendChild(menu);
           menuButtons.remove();
           menu.appendChild(gameOverField);
+          gameOverScore.innerText = score;
           play = false;
           return;
         }
