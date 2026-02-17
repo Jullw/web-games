@@ -18,7 +18,7 @@
         id="topBar"
         class="flex w-full justify-between items-center bg-black h-10 px-2"
       >
-        <div>Speed: <span id="topBarSpeed" class="text-center"></span></div>
+        <div>Speed: <span id="speed" class="text-center"></span></div>
         <div>Score: <span id="score" class="text-center"></span></div>
         <div class="flex items-center">
           Level: <span id="level" class="w-8 text-center"></span>
@@ -44,31 +44,12 @@
           <div id="play" class="hover:text-[darkgreen] cursor-pointer">
             Play
           </div>
-          <div id="high-scores" class="hover:text-[darkgreen] cursor-pointer">
-            High Scores
-          </div>
           <div id="settings" class="hover:text-[darkgreen] cursor-pointer">
             Settings
           </div>
         </div>
 
         <div id="settingsField" class="flex flex-col justify-center gap-1">
-          <div class="flex items-center gap-1">
-            Speed:
-            <img
-              id="speed"
-              value="minus"
-              src="arrow.svg"
-              class="rotate-180 cursor-pointer"
-            />
-            <div id="speedValue"></div>
-            <img
-              id="speed"
-              value="plus"
-              src="arrow.svg"
-              class="cursor-pointer"
-            />
-          </div>
           <div class="flex items-center gap-2">
             Cell size:
             <img
@@ -152,13 +133,34 @@
 
       <canvas id="game"></canvas>
       <div
-        class="flex flex-row justify-center items-center w-full"
+        class="flex flex-col justify-center items-center w-full gap-1 mt-1"
         id="gameControls"
       >
-        <img value="left" src="arrowLg.svg" class="rotate-180 cursor-pointer" />
-        <img value="right" src="arrowLg.svg" class="cursor-pointer" />
-        <img value="up" src="arrowLg.svg" class="-rotate-90 cursor-pointer" />
-        <img value="down" src="arrowLg.svg" class="rotate-90 cursor-pointer" />
+        <div>
+          <img
+            value="up"
+            src="arrowLg.svg"
+            class="-rotate-90 cursor-pointer active:scale-[95%]"
+          />
+        </div>
+
+        <div class="flex flex-row justify-center items-center gap-1">
+          <img
+            value="left"
+            src="arrowLg.svg"
+            class="rotate-180 cursor-pointer w-fit active:scale-[95%]"
+          />
+          <img
+            value="down"
+            src="arrowLg.svg"
+            class="rotate-90 cursor-pointer active:scale-[95%]"
+          />
+          <img
+            value="right"
+            src="arrowLg.svg"
+            class="cursor-pointer active:scale-[95%]"
+          />
+        </div>
       </div>
     </div>
 
@@ -167,7 +169,6 @@
 
       let play = false;
       let settings = false;
-      let highScores = false;
 
       const menu = document.getElementById("menu");
       const menuButtons = document.getElementById("menuButtons");
@@ -177,7 +178,6 @@
       const gameOverScore = document.getElementById("gameOverScore");
       const gameOverText = document.getElementById("gameOverText");
 
-      const speedValue = document.getElementById("speedValue");
       const cellSizeValue = document.getElementById("cellSizeValue");
       const snakeColorInput = document.getElementById("snakeColor");
       const foodColorInput = document.getElementById("foodColor");
@@ -191,10 +191,8 @@
       const topBarField = document.getElementById("topBar");
       const scoreField = document.getElementById("score");
       const levelField = document.getElementById("level");
-      const speedField = document.getElementById("topBarSpeed");
+      const speedField = document.getElementById("speed");
       const gameControlsField = document.getElementById("gameControls");
-
-      let interval;
 
       document.addEventListener("visibilitychange", (event) => {
         if (document.visibilityState === "hidden") {
@@ -249,36 +247,9 @@
           menu.appendChild(settingsField);
         });
 
-        document.querySelectorAll("[id=speed]").forEach((img) => {
-          const initSpeed = (isPlus) => {
-            let temp = stepsPerSecond + (isPlus ? +1 : -1);
-            if (temp > 100 || temp <= 0) return;
-            speedValue.innerText = stepsPerSecond = temp;
-          };
-
-          img.addEventListener("mousedown", (event) => {
-            interval = setInterval(() => {
-              initSpeed(event.target.getAttribute("value") === "plus");
-            }, 100);
-          });
-
-          img.addEventListener("click", (event) => {
-            initSpeed(event.target.getAttribute("value") === "plus");
-          });
-
-          img.addEventListener("mouseup", (event) => {
-            clearInterval(interval);
-          });
-
-          img.addEventListener("mouseleave", (event) => {
-            clearInterval(interval);
-          });
-        });
-
         document.querySelectorAll("[id=cellSize]").forEach((img) => {
           img.addEventListener("mousedown", (event) => {
             const isPlus = event.target.getAttribute("value") === "plus";
-
             let temp = cell + (isPlus ? +1 : -1);
             // calculate next right size board
             while (canvasSize % temp !== 0) {
@@ -376,14 +347,14 @@
 
       let cell = 50;
       let board;
-      let canvasSize = 600;
+      let canvasSize = 500;
       let BOARD_HEIGHT = Math.floor(canvasSize / cell);
       let BOARD_WIDTH = Math.floor(canvasSize / cell);
 
-      let boardColor1 = "green";
-      let boardColor2 = "darkgreen";
-      let snakeColor = "blue";
-      let foodColor = "red";
+      let boardColor1 = "#008000";
+      let boardColor2 = "#006400";
+      let snakeColor = "#0000FF";
+      let foodColor = "#ff0000";
 
       let snake;
       let food;
@@ -395,8 +366,17 @@
       let level = 1;
       let wallCollision = true;
 
+      const appleBite = new Audio("./crunchybite.ogg");
+      const bumb = new Audio("./bumb.wav");
+
+      const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      const source = audioCtx.createMediaElementSource(appleBite);
+      source.connect(audioCtx.destination);
+
+      const source1 = audioCtx.createMediaElementSource(bumb);
+      source1.connect(audioCtx.destination);
+
       const initInnerTexts = () => {
-        speedValue.innerText = stepsPerSecond;
         cellSizeValue.innerText = cell;
         boardColorInput1.value = boardColor1;
         boardColorInput2.value = boardColor2;
@@ -417,7 +397,7 @@
 
       function setup() {
         frameRate(30);
-        canvasSize = window.innerWidth > 600 ? 600 : window.innerWidth;
+        canvasSize = window.innerWidth > 500 ? 500 : window.innerWidth;
         createCanvas(canvasSize, canvasSize, canvas);
 
         while (canvasSize % cell !== 0) {
@@ -429,6 +409,7 @@
         topBarField.style.width = canvasSize + "px";
         gameControlsField.style.width = canvasSize + "px";
 
+        stepsPerSecond = Math.round(250 / cell);
         describe("Snake");
         generateEmptyBoard();
         generateSnake();
@@ -491,6 +472,7 @@
 
         snake.unshift(newHead);
         if (canEatFood(newHead)) {
+          appleBite.play();
           score += 10;
           generateFood();
         } else {
@@ -591,6 +573,7 @@
       };
 
       const gameOver = () => {
+        bumb.play();
         mainDiv.appendChild(menu);
         menuButtons.remove();
         menu.appendChild(gameOverField);
@@ -666,7 +649,6 @@
         if (x === food.x && y === food.y) {
           fill(foodColor);
           rect(x * cell, y * cell, cell, cell);
-          // circle(x * cell + cell / 2, y * cell + cell / 2, cell);
         }
       };
     </script>
