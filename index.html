@@ -4,31 +4,69 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <script src="https://cdn.tailwindcss.com"></script>
+
+    <script>
+      // Enable class-based dark mode
+      tailwind.config = {
+        darkMode: "class",
+      };
+    </script>
+
     <title>Main page</title>
   </head>
-  <body class="h-full w-full m-0">
+
+  <body
+    class="h-full w-full m-0 bg-white text-gray-900 dark:bg-gray-950 dark:text-gray-100 transition-colors duration-500"
+  >
     <div class="flex items-center justify-center h-full w-full">
       <div class="relative flex items-center justify-center">
-        <span
-          id="centerText"
-          class="text-xl font-[fantasy] font-semibold transition-all duration-300 absolute transition"
-        >
-        </span>
         <div
-          class="absolute w-64 h-64 rounded-full border-2 border-dashed border-gray-800 animate-[spin_60s_linear_infinite_reverse]"
+          class="absolute w-64 h-64 rounded-full border-2 border-dashed border-gray-800 dark:border-gray-400 animate-[spin_60s_linear_infinite_reverse]"
         ></div>
         <div
-          class="absolute w-60 h-60 rounded-full border-2 border-dashed border-gray-800 animate-[spin_90s_linear_infinite]"
+          class="absolute w-[260px] h-[260px] animate-[spin_500s_linear_infinite_reverse]"
+        >
+          <button
+            id="dark"
+            class="[text-shadow:0_0_4px_rgba(0,0,0,1)] dark:[text-shadow:0_0_4px_rgba(255,255,255,1)] absolute bottom-0 right-0"
+          >
+            🌙
+          </button>
+
+          <button
+            id="light"
+            class="[text-shadow:0_0_4px_rgba(0,0,0,1)] dark:[text-shadow:0_0_4px_rgba(255,255,255,1)] absolute top-0 left-0"
+          >
+            ☀️
+          </button>
+        </div>
+
+        <div
+          class="absolute w-60 h-60 rounded-full border-2 border-dashed border-gray-800 dark:border-gray-400 animate-[spin_90s_linear_infinite]"
         ></div>
 
+        <div
+          class="absolute h-[234px] rounded-full border border-dashed border-gray-800 dark:border-gray-500 animate-[spin_30s_linear_infinite_reverse]"
+        ></div>
+
+        <div
+          class="absolute h-[234px] rounded-full border border-dashed border-gray-800 dark:border-gray-500 animate-[spin_30s_linear_infinite]"
+        ></div>
+
+        <!-- Center Hover Text -->
+        <span
+          id="centerText"
+          class="text-xl font-[fantasy] font-semibold absolute transition-all duration-300 rounded-lg bg-white/30 dark:bg-gray-950/30"
+        ></span>
+
+        <!-- Rotating Links -->
         <div
           class="relative w-64 h-64 text-xl font-bold font-[fantasy] animate-[spin_80s_linear_infinite] hover:[animation-play-state:paused]"
         >
-          <!-- Link 1 -->
           <a
             href="/tetris/index.html"
             data-name="Tetris"
-            class="absolute left-1/2 -top-[8%] -translate-x-1/2 rotate-[0deg] nav-link"
+            class="absolute left-1/2 -top-[8%] -translate-x-1/2 rotate-[0deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
           >
             Tetris
           </a>
@@ -36,14 +74,15 @@
           <a
             href="/snake/index.html"
             data-name="Snake"
-            class="absolute top-[13%] left-[12%] -translate-y-1/2 -translate-x-1/2 rotate-[-45deg] nav-link"
-            >Snake
+            class="absolute top-[13%] left-[12%] -translate-y-1/2 -translate-x-1/2 rotate-[-45deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
+          >
+            Snake
           </a>
 
           <a
             href="/tetris/index.html"
             data-name="Tetris"
-            class="absolute left-[93%] top-1/2 -translate-y-1/2 rotate-[90deg] nav-link"
+            class="absolute left-[103%] top-1/2 -translate-y-1/2 -translate-x-1/2 rotate-[90deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
           >
             Tetris
           </a>
@@ -51,15 +90,15 @@
           <a
             href="/snake/index.html"
             data-name="Snake"
-            class="absolute top-[13%] left-[88%] -translate-y-1/2 -translate-x-1/2 rotate-[45deg] nav-link"
-            >Snake
+            class="absolute top-[13%] left-[88%] -translate-y-1/2 -translate-x-1/2 rotate-[45deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
+          >
+            Snake
           </a>
 
-          <!-- Link 3 -->
           <a
             href="/tetris/index.html"
             data-name="Tetris"
-            class="absolute left-1/2 -bottom-[8%] -translate-x-1/2 rotate-[180deg] nav-link"
+            class="absolute left-1/2 -bottom-[8%] -translate-x-1/2 rotate-[180deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
           >
             Tetris
           </a>
@@ -67,15 +106,15 @@
           <a
             href="/snake/index.html"
             data-name="Snake"
-            class="absolute top-[85%] left-[90%] -translate-y-1/2 -translate-x-1/2 rotate-[-225deg] nav-link"
-            >Snake
+            class="absolute top-[85%] left-[90%] -translate-y-1/2 -translate-x-1/2 rotate-[-225deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
+          >
+            Snake
           </a>
 
-          <!-- Link 4 -->
           <a
             href="/tetris/index.html"
             data-name="Tetris"
-            class="absolute -left-[3%] top-1/2 -translate-y-1/2 -translate-x-1/2 rotate-[270deg] nav-link"
+            class="absolute -left-[3%] top-1/2 -translate-y-1/2 -translate-x-1/2 rotate-[270deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
           >
             Tetris
           </a>
@@ -83,28 +122,49 @@
           <a
             href="/snake/index.html"
             data-name="Snake"
-            class="absolute top-[85%] left-[10%] -translate-y-1/2 -translate-x-1/2 rotate-[225deg] nav-link"
-            >Snake</a
+            class="absolute top-[85%] left-[10%] -translate-y-1/2 -translate-x-1/2 rotate-[225deg] nav-link dark:hover:text-gray-400 hover:text-gray-700"
           >
+            Snake
+          </a>
         </div>
       </div>
     </div>
+
+    <script>
+      const centerText = document.getElementById("centerText");
+      const links = document.querySelectorAll(".nav-link");
+      const light = document.getElementById("light");
+      const dark = document.getElementById("dark");
+
+      // Hover text logic
+      links.forEach((link) => {
+        link.addEventListener("mouseenter", () => {
+          centerText.textContent = link.dataset.name;
+          centerText.classList.remove("scale-0");
+          centerText.classList.add("scale-125");
+        });
+
+        link.addEventListener("mouseleave", () => {
+          centerText.classList.remove("scale-125");
+          centerText.classList.add("scale-0");
+        });
+      });
+
+      // Load saved theme
+      if (localStorage.getItem("theme") === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+
+      // Toggle theme
+      dark.addEventListener("click", () => {
+        document.documentElement.classList.remove("dark");
+        document.documentElement.classList.add("dark");
+        localStorage.setItem("theme", "dark");
+      });
+      light.addEventListener("click", () => {
+        document.documentElement.classList.remove("dark");
+        localStorage.setItem("theme", "light");
+      });
+    </script>
   </body>
-  <script>
-    const centerText = document.getElementById("centerText");
-    const links = document.querySelectorAll(".nav-link");
-
-    links.forEach((link) => {
-      link.addEventListener("mouseenter", () => {
-        centerText.textContent = link.dataset.name;
-        centerText.classList.remove("scale-0");
-        centerText.classList.add("scale-125");
-      });
-
-      link.addEventListener("mouseleave", () => {
-        centerText.classList.remove("scale-125");
-        centerText.classList.add("scale-0");
-      });
-    });
-  </script>
 </html>
