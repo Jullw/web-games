@@ -257,6 +257,7 @@
       let score = 0;
       let level = 1;
       let wallCollision = true;
+      let isLaucn = true;
 
       const appleBite = new Audio("./crunchybite.ogg");
       const bumb = new Audio("./bumb.wav");
@@ -471,7 +472,10 @@
         topBar.style.width = canvasSize + "px";
         controls.style.width = canvasSize + "px";
 
-        stepsPerSecond = cell > 40 ? 2 : baseSpeed;
+        if (isLaucn) {
+          isLaucn = false;
+          cell > 40 ? 2 : baseSpeed;
+        }
 
         generateEmptyBoard();
         generateSnake();
