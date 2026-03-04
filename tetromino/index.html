@@ -1,0 +1,500 @@
+<!doctype html>
+<html lang="fi" class="h-full w-full m-0">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script src="https://cdn.jsdelivr.net/npm/p5@1.11.11/lib/p5.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <title>Tetromino</title>
+  </head>
+
+  <body class="h-full m-0 bg-gradient-to-b from-gray-900 via-black to-gray-900">
+    <div class="h-full flex items-center justify-center p-4">
+      <div class="flex gap-4 items-start">
+        <div id="canvasWrap" class="rounded-xl overflow-hidden shadow-lg"></div>
+
+        <div class="w-56 text-white font-mono">
+          <div class="rounded-xl bg-white/10 p-4 space-y-3">
+            <div class="space-y-1">
+              <div>Score: <span id="score">0</span></div>
+              <div>Lines: <span id="lines">0</span></div>
+              <div>Level: <span id="level">1</span></div>
+            </div>
+
+            <div
+              class="pt-2 border-t border-white/10 text-xs leading-5 text-white/80"
+            >
+              <div><b>← →</b> move</div>
+              <div><b>↓</b> soft drop</div>
+              <div><b>Space</b> hard drop</div>
+              <div><b>Z / X</b> rotate</div>
+              <div><b>C</b> hold</div>
+              <div><b>R</b> restart</div>
+            </div>
+          </div>
+
+          <div class="mt-4 rounded-xl bg-white/10 p-4">
+            <div class="text-sm mb-2">Next</div>
+            <div id="nextWrap" class="rounded-lg bg-black/30 p-2"></div>
+          </div>
+          <div class="mt-4 rounded-xl bg-white/10 p-4">
+            <div class="text-sm mb-2">Hold</div>
+            <div id="holdWrap" class="rounded-lg bg-black/30 p-2"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const COLS = 10;
+      const ROWS = 20;
+      const CELL = 28;
+
+      const UI = {
+        score: document.getElementById("score"),
+        lines: document.getElementById("lines"),
+        level: document.getElementById("level"),
+        nextWrap: document.getElementById("nextWrap"),
+        holdWrap: document.getElementById("holdWrap"),
+      };
+
+      const PIECES = [
+        // I
+        {
+          id: 1,
+          mat: [
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+            [0, 1, 0, 0],
+          ],
+        },
+        // O
+        {
+          id: 2,
+          mat: [
+            [0, 0, 0, 0],
+            [0, 2, 2, 0],
+            [0, 2, 2, 0],
+            [0, 0, 0, 0],
+          ],
+        },
+        // Z
+        {
+          id: 3,
+          mat: [
+            [0, 0, 3, 0],
+            [0, 3, 3, 0],
+            [0, 3, 0, 0],
+            [0, 0, 0, 0],
+          ],
+        },
+        // S
+        {
+          id: 4,
+          mat: [
+            [0, 4, 0, 0],
+            [0, 4, 4, 0],
+            [0, 0, 4, 0],
+            [0, 0, 0, 0],
+          ],
+        },
+        // L
+        {
+          id: 5,
+          mat: [
+            [0, 5, 0, 0],
+            [0, 5, 0, 0],
+            [0, 5, 5, 0],
+            [0, 0, 0, 0],
+          ],
+        },
+        // J
+        {
+          id: 6,
+          mat: [
+            [0, 0, 6, 0],
+            [0, 0, 6, 0],
+            [0, 6, 6, 0],
+            [0, 0, 0, 0],
+          ],
+        },
+        // T
+        {
+          id: 7,
+          mat: [
+            [0, 7, 0, 0],
+            [0, 7, 7, 0],
+            [0, 7, 0, 0],
+            [0, 0, 0, 0],
+          ],
+        },
+      ];
+
+      let board;
+      let current;
+      let next;
+      let score = 0;
+      let lines = 0;
+      let level = 1;
+
+      let dropAcc = 0;
+      let softDrop = false;
+      let gameOver = false;
+      let hold = null; // {id, mat} tai null
+      let canHold = true;
+
+      const makeBoard = () =>
+        Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+
+      const randomPiece = () => {
+        const p = PIECES[Math.floor(Math.random() * PIECES.length)];
+        return { id: p.id, mat: p.mat };
+      };
+
+      const spawn = () => {
+        current = next ?? randomPiece();
+        next = randomPiece();
+
+        current.x = Math.floor(COLS / 2) - 2;
+        current.y = 0;
+
+        if (collides(board, current, current.x, current.y)) {
+          gameOver = true;
+        }
+
+        renderNextPreview();
+      };
+
+      function collides(board, piece, x, y, make) {
+        for (let yy = 0; yy < 4; yy++) {
+          for (let xx = 0; xx < 4; xx++) {
+            if (make) console.log(piece.mat);
+            if (piece.mat[yy][xx] === 0) continue;
+
+            const by = y + yy;
+            const bx = x + xx;
+
+            if (bx < 0 || bx >= COLS || by < 0 || by >= ROWS) return true;
+            if (board[by][bx] !== 0) return true;
+          }
+        }
+        return false;
+      }
+
+      function merge(board, piece) {
+        for (let yy = 0; yy < 4; yy++) {
+          for (let xx = 0; xx < 4; xx++) {
+            const v = piece.mat[yy][xx];
+            if (!v) continue;
+
+            const by = piece.y + yy;
+            const bx = piece.x + xx;
+            if (by >= 0 && by < ROWS && bx >= 0 && bx < COLS) {
+              board[by][bx] = v;
+            }
+          }
+        }
+      }
+
+      function clearLines(board) {
+        let cleared = 0;
+
+        for (let y = ROWS - 1; y >= 0; y--) {
+          if (board[y].every((c) => c !== 0)) {
+            board.splice(y, 1);
+            board.unshift(Array(COLS).fill(0));
+            cleared++;
+            y++;
+          }
+        }
+
+        if (cleared > 0) {
+          lines += cleared;
+
+          // Score multiplier
+          const table = [0, 40, 100, 300, 1200];
+          score += (table[cleared] || 0) * level;
+
+          // Level up every 10 lines
+          level = Math.floor(lines / 10) + 1;
+
+          updateUI();
+        }
+      }
+
+      function rotatePiece(mat, dir) {
+        // dir: +1 right, -1 left
+        console.log(mat);
+        const res = mat.map((row, y) =>
+          row.map((col, x) => (dir === -1 ? mat[x][3 - y] : mat[3 - x][y])),
+        );
+        return res;
+      }
+
+      function tryRotate(dir) {
+        let rotated = {
+          id: current.id,
+          mat: rotatePiece(current.mat, dir),
+          x: current.x,
+          y: current.y,
+        };
+
+        // very simple "wall kick": try center, then nudges
+        const kicks = [0, -1, 1, -2, 2];
+        for (const k of kicks) {
+          if (!collides(board, rotated, current.x + k, current.y, true)) {
+            current.x += k;
+            current.mat = rotated.mat;
+            return;
+          }
+        }
+      }
+
+      function hardDrop() {
+        while (
+          !collides(board, current, current.x, current.y + 1, current.mat)
+        ) {
+          current.y++;
+          score += 2; // tiny reward for hard drop distance
+        }
+        lockCurrent();
+      }
+
+      function lockCurrent() {
+        merge(board, current);
+        clearLines(board);
+        canHold = true;
+        spawn();
+      }
+
+      function updateUI() {
+        UI.score.textContent = String(score);
+        UI.lines.textContent = String(lines);
+        UI.level.textContent = String(level);
+      }
+
+      function resetGame() {
+        board = makeBoard();
+        score = 0;
+        lines = 0;
+        level = 1;
+        dropAcc = 0;
+        softDrop = false;
+        gameOver = false;
+        hold = null;
+        canHold = true;
+        renderHoldPreview();
+
+        next = randomPiece();
+        spawn();
+        updateUI();
+      }
+
+      function renderHoldPreview() {
+        const size = 4;
+        const cell = 18;
+
+        if (!hold) {
+          UI.holdWrap.innerHTML = `<div class="text-white/40 text-xs">empty</div>`;
+          return;
+        }
+
+        const m = hold.mat;
+        UI.holdWrap.innerHTML = `
+    <div style="display:grid;grid-template-columns:repeat(${size},${cell}px);gap:2px;">
+      ${m
+        .flat()
+        .map((v) => {
+          const bg = v ? "rgba(255,255,255,0.85)" : "rgba(255,255,255,0.08)";
+          return `<div style="width:${cell}px;height:${cell}px;border-radius:4px;background:${bg};"></div>`;
+        })
+        .join("")}
+    </div>
+  `;
+      }
+
+      function renderNextPreview() {
+        // Simple DOM preview (no extra canvas)
+        const m = next.mat;
+        const size = 4;
+        const cell = 18;
+
+        const html = `
+          <div style="display:grid;grid-template-columns:repeat(${size},${cell}px);gap:2px;">
+            ${m
+              .flat()
+              .map((v) => {
+                const bg = v
+                  ? "rgba(255,255,255,0.85)"
+                  : "rgba(255,255,255,0.08)";
+                return `<div style="width:${cell}px;height:${cell}px;border-radius:4px;background:${bg};"></div>`;
+              })
+              .join("")}
+          </div>
+        `;
+        UI.nextWrap.innerHTML = html;
+      }
+
+      document.addEventListener("keydown", (e) => {
+        if (e.key === "r" || e.key === "R") {
+          resetGame();
+          return;
+        }
+
+        if (gameOver) return;
+
+        if (e.key === "ArrowLeft") {
+          const nx = current.x - 1;
+          if (!collides(board, current, nx, current.y)) current.x = nx;
+        }
+        if (e.key === "ArrowRight") {
+          const nx = current.x + 1;
+          if (!collides(board, current, nx, current.y)) current.x = nx;
+        }
+        if (e.key === "ArrowDown") {
+          softDrop = true;
+          dropAcc = 0;
+        }
+
+        if (e.key === "c" || e.key === "C") {
+          holdPiece();
+        }
+
+        if (e.key === "z" || e.key === "Z") {
+          tryRotate(-1);
+        }
+        if (e.key === "x" || e.key === "X") {
+          tryRotate(+1);
+        }
+        if (e.key === " ") {
+          e.preventDefault();
+          hardDrop();
+        }
+      });
+
+      document.addEventListener("keyup", (e) => {
+        if (e.key === "ArrowDown") {
+          softDrop = false;
+          dropAcc = 0;
+        }
+      });
+
+      // --- P5 DRAWING ---
+      function setup() {
+        const c = createCanvas(COLS * CELL, ROWS * CELL);
+        c.parent("canvasWrap");
+        noStroke();
+        resetGame();
+      }
+
+      function drawCell(x, y, v) {
+        if (v === 0) fill(40, 35, 30);
+        if (v === 1) fill(0, 200, 255);
+        if (v === 2) fill(255, 213, 0);
+        if (v === 3) fill(255, 70, 70);
+        if (v === 4) fill(120, 255, 120);
+        if (v === 5) fill(255, 160, 60);
+        if (v === 6) fill(80, 120, 255);
+        if (v === 7) fill(180, 80, 255);
+
+        rect(x * CELL, y * CELL, CELL - 1, CELL - 1, 4);
+      }
+
+      function drawBoardOnly() {
+        for (let y = 0; y < ROWS; y++) {
+          for (let x = 0; x < COLS; x++) {
+            drawCell(x, y, board[y][x]);
+          }
+        }
+      }
+
+      function drawCurrentOverlay() {
+        const m = current.mat;
+        for (let yy = 0; yy < 4; yy++) {
+          for (let xx = 0; xx < 4; xx++) {
+            const v = m[yy][xx];
+            if (!v) continue;
+
+            const x = current.x + xx;
+            const y = current.y + yy;
+            if (y >= 0 && y < ROWS && x >= 0 && x < COLS) {
+              drawCell(x, y, v);
+            }
+          }
+        }
+      }
+
+      function holdPiece() {
+        if (!canHold || gameOver) return;
+
+        canHold = false;
+
+        if (hold === null) {
+          hold = { id: current.id, mat: current.mat };
+          spawn(); // ottaa nextin currentiksi
+        } else {
+          const tmp = hold;
+          hold = { id: current.id, mat: current.mat };
+
+          current = { id: tmp.id, mat: tmp.mat, x: 0, y: 0 };
+          current.x = Math.floor(COLS / 2) - 2;
+          current.y = 0;
+
+          if (collides(board, current, current.x, current.y)) {
+            gameOver = true;
+          }
+        }
+
+        renderHoldPreview();
+      }
+
+      function gravityIntervalMs() {
+        const base = 650; // ms
+        return Math.max(80, base - (level - 1) * 50);
+      }
+
+      function tick(dt) {
+        const normal = gravityIntervalMs();
+        const interval = softDrop ? 40 : normal; // softdrop nopeus
+
+        dropAcc += Math.min(dt, 50);
+
+        if (dropAcc >= interval) {
+          dropAcc = 0; // tärkeä: reset, ei while-looppia
+
+          if (
+            !collides(board, current, current.x, current.y + 1, current.mat)
+          ) {
+            current.y++;
+            if (softDrop) score += 1; // optional: piste per askel
+          } else {
+            lockCurrent();
+          }
+        }
+      }
+
+      function draw() {
+        background(15);
+
+        if (!gameOver) tick(deltaTime);
+
+        drawBoardOnly();
+        if (!gameOver) drawCurrentOverlay();
+
+        if (gameOver) {
+          fill(0, 0, 0, 160);
+          rect(0, 0, width, height);
+
+          fill(255);
+          textAlign(CENTER, CENTER);
+          textSize(28);
+          text("GAME OVER", width / 2, height / 2 - 20);
+
+          textSize(14);
+          text("Press R to restart", width / 2, height / 2 + 18);
+        }
+      }
+    </script>
+  </body>
+</html>
