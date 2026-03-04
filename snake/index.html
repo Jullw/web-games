@@ -11,64 +11,87 @@
     class="h-full w-full m-0 bg-gradient-to-b from-gray-900 via-black to-gray-900"
   >
     <div
-      id="mainDiv"
+      id="main"
       class="h-full flex flex-col justify-center items-center font-mono text-white"
     >
+      <!-- Topbar -->
       <div
         id="topBar"
         class="flex w-full justify-between items-center bg-black h-10 px-2"
       >
-        <div>Speed: <span id="speed" class="text-center"></span></div>
-        <div>Score: <span id="score" class="text-center"></span></div>
-        <div class="flex items-center">
-          Level: <span id="level" class="w-8 text-center"></span>
+        <div>Speed: <span id="speed"></span></div>
+        <div>Score: <span id="score"></span></div>
+        <div>
+          Level: <span id="level" class="w-8 inline-block text-center"></span>
         </div>
       </div>
+
+      <!-- Overlay (menu/settings/gameover) -->
       <div
-        id="menu"
-        class="absolute border-2 rounded-lg font-bold border-black bg-gradient-to-b from-black via-gray-900 to-black w-56 h-64 p-4"
+        id="overlay"
+        class="absolute border-2 rounded-lg font-bold border-black bg-gradient-to-b from-black via-gray-900 to-black w-56 min-h-64 p-4"
       >
+        <!-- Title -->
         <div class="flex justify-center text-2xl text-[green]">
           <span class="pr-4 flex items-center">
             <span
               class="rounded-full bg-[red] h-3 w-3 border border-red-500 animate-[bounce_1.2s_ease-in-out_infinite]"
-            ></span
-          ></span>
+            ></span>
+          </span>
           <span class="animate-[bounce_1.2s_linear_infinite_-0.2s]">S</span>
-          <span class="animate-[bounce_1.2s_linear_infinite_-0.4s]">n </span>
-          <span class="animate-[bounce_1.2s_linear_infinite_-0.6s]">a </span>
-          <span class="animate-[bounce_1.2s_linear_infinite_-0.8s]">k </span>
-          <span class="animate-[bounce_1.2s_linear_infinite_-1s]">e </span>
+          <span class="animate-[bounce_1.2s_linear_infinite_-0.4s]">n</span>
+          <span class="animate-[bounce_1.2s_linear_infinite_-0.6s]">a</span>
+          <span class="animate-[bounce_1.2s_linear_infinite_-0.8s]">k</span>
+          <span class="animate-[bounce_1.2s_linear_infinite_-1s]">e</span>
         </div>
-        <div id="menuButtons" class="mt-4 flex flex-col items-center gap-2">
-          <div id="play" class="hover:text-[darkgreen] cursor-pointer">
+
+        <!-- MENU -->
+        <div id="view-menu" class="mt-4 flex flex-col items-center gap-2">
+          <button data-action="play" class="hover:text-[darkgreen]">
             Play
-          </div>
-          <div id="settings" class="hover:text-[darkgreen] cursor-pointer">
+          </button>
+          <button data-action="openSettings" class="hover:text-[darkgreen]">
             Settings
-          </div>
+          </button>
         </div>
 
-        <div id="settingsField" class="flex flex-col justify-center gap-1">
-          <div class="flex items-center gap-2">
-            Cell size:
-            <img
-              id="cellSize"
-              value="minus"
-              src="arrow.svg"
-              class="rotate-180 cursor-pointer"
-            />
-            <div id="cellSizeValue"></div>
-            <img
-              id="cellSize"
-              value="plus"
-              src="arrow.svg"
-              class="cursor-pointer"
+        <!-- SETTINGS -->
+        <div id="view-settings" class="hidden mt-4 flex flex-col gap-2 text-sm">
+          <div class="flex items-center justify-between gap-2">
+            <span>Cell size</span>
+            <div class="flex items-center gap-2">
+              <img
+                data-action="cellMinus"
+                src="arrow.svg"
+                class="rotate-180 cursor-pointer"
+              />
+              <span id="cellSizeValue" class="w-8 text-center"></span>
+              <img
+                data-action="cellPlus"
+                src="arrow.svg"
+                class="cursor-pointer"
+              />
+            </div>
+          </div>
+
+          <!-- NEW: SPEED picker -->
+          <div class="flex flex-col gap-1">
+            <div class="flex items-center justify-between">
+              <span>Speed</span>
+              <span id="speedSettingValue" class="w-10 text-center"></span>
+            </div>
+            <input
+              id="speedSetting"
+              type="range"
+              min="1"
+              max="100"
+              step="1"
+              class="w-full"
             />
           </div>
 
-          <div class="flex items-center gap-2">
-            Snake:
+          <div class="flex items-center justify-between">
+            <span>Snake</span>
             <input
               type="color"
               id="snakeColor"
@@ -76,8 +99,9 @@
               class="w-[20px] h-[20px]"
             />
           </div>
-          <div class="flex items-center gap-2">
-            Food:
+
+          <div class="flex items-center justify-between">
+            <span>Food</span>
             <input
               type="color"
               id="foodColor"
@@ -85,78 +109,83 @@
               class="w-[20px] h-[20px]"
             />
           </div>
-          <div class="flex items-center gap-2">
-            Board:
-            <input
-              type="color"
-              id="boardColor1"
-              value="#0000ff"
-              class="w-[20px] h-[20px]"
-            />
-            <input
-              type="color"
-              id="boardColor2"
-              value="#0000ff"
-              class="w-[20px] h-[20px]"
-            />
-          </div>
-          <div
-            id="wallCollisionToggle"
-            class="flex items-center gap-1 cursor-pointer"
-          >
-            Wall Collision: <span id="wallCollisionValue"></span>
+
+          <div class="flex items-center justify-between gap-2">
+            <span>Board</span>
+            <div class="flex items-center gap-2">
+              <input
+                type="color"
+                id="boardColor1"
+                value="#008000"
+                class="w-[20px] h-[20px]"
+              />
+              <input
+                type="color"
+                id="boardColor2"
+                value="#006400"
+                class="w-[20px] h-[20px]"
+              />
+            </div>
           </div>
 
-          <div
-            id="returnToMenu"
-            class="flex items-center cursor-pointer justify-center mt-2"
+          <button
+            data-action="toggleWall"
+            class="text-left hover:text-[darkgreen]"
           >
+            Wall Collision: <span id="wallCollisionValue"></span>
+          </button>
+
+          <button data-action="backToMenu" class="mt-2 hover:text-[darkgreen]">
             Return to Menu
-          </div>
+          </button>
         </div>
-        <div id="gameOver" class="text-center flex flex-col">
+
+        <!-- GAME OVER -->
+        <div id="view-gameover" class="hidden mt-4 text-center">
           <div id="gameOverText" class="mt-2"></div>
           <div class="text-orange-400 mt-1 flex gap-1 justify-center">
-            Score:<span id="gameOverScore"></span>
+            Score: <span id="gameOverScore"></span>
           </div>
-          <div id="goToMenu" class="mt-4 cursor-pointer hover:text-[darkgreen]">
+          <button data-action="goMenu" class="mt-4 hover:text-[darkgreen]">
             Go to menu
-          </div>
-          <div
-            id="playAgain"
-            class="mt-2 cursor-pointer text-green-500 hover:text-[darkgreen]"
+          </button>
+          <button
+            data-action="playAgain"
+            class="mt-2 text-green-500 hover:text-[darkgreen]"
           >
             Play again!
-          </div>
+          </button>
         </div>
       </div>
 
+      <!-- Canvas -->
       <canvas id="game"></canvas>
+
+      <!-- Mobile controls -->
       <div
+        id="controls"
         class="flex flex-col justify-center items-center w-full gap-1 mt-1"
-        id="gameControls"
       >
         <div>
           <img
-            value="up"
+            data-dir="up"
             src="arrowLg.svg"
             class="-rotate-90 cursor-pointer active:scale-[95%]"
           />
         </div>
-
         <div class="flex flex-row justify-center items-center gap-1">
           <img
-            value="left"
+            data-dir="left"
             src="arrowLg.svg"
-            class="rotate-180 cursor-pointer w-fit active:scale-[95%]"
+            class="rotate-180 cursor-pointer active:scale-[95%]"
           />
           <img
-            value="down"
+            data-dir="down"
             src="arrowLg.svg"
             class="rotate-90 cursor-pointer active:scale-[95%]"
           />
           <img
-            value="right"
+            data-dir="right"
             src="arrowLg.svg"
             class="cursor-pointer active:scale-[95%]"
           />
@@ -165,188 +194,50 @@
     </div>
 
     <script>
-      const canvas = document.getElementById("game");
+      const $ = (id) => document.getElementById(id);
 
+      const main = $("main");
+      const overlay = $("overlay");
+
+      const viewMenu = $("view-menu");
+      const viewSettings = $("view-settings");
+      const viewGameover = $("view-gameover");
+
+      const topBar = $("topBar");
+      const scoreField = $("score");
+      const levelField = $("level");
+      const speedField = $("speed");
+
+      const cellSizeValue = $("cellSizeValue");
+      const snakeColorInput = $("snakeColor");
+      const foodColorInput = $("foodColor");
+      const boardColorInput1 = $("boardColor1");
+      const boardColorInput2 = $("boardColor2");
+      const wallCollisionValue = $("wallCollisionValue");
+
+      const speedSetting = $("speedSetting");
+      const speedSettingValue = $("speedSettingValue");
+
+      const gameOverText = $("gameOverText");
+      const gameOverScore = $("gameOverScore");
+
+      const canvas = $("game");
+      const controls = $("controls");
+
+      function show(which) {
+        // which: 'menu' | 'settings' | 'gameover' | 'none'
+        viewMenu.classList.toggle("hidden", which !== "menu");
+        viewSettings.classList.toggle("hidden", which !== "settings");
+        viewGameover.classList.toggle("hidden", which !== "gameover");
+        overlay.classList.toggle("hidden", which === "none");
+      }
+
+      // -----------------------------
+      // Game state (same idea as before)
+      // -----------------------------
       let play = false;
-      let settings = false;
-
-      const menu = document.getElementById("menu");
-      const menuButtons = document.getElementById("menuButtons");
-      const mainDiv = document.getElementById("mainDiv");
-      const settingsField = document.getElementById("settingsField");
-      const gameOverField = document.getElementById("gameOver");
-      const gameOverScore = document.getElementById("gameOverScore");
-      const gameOverText = document.getElementById("gameOverText");
-
-      const cellSizeValue = document.getElementById("cellSizeValue");
-      const snakeColorInput = document.getElementById("snakeColor");
-      const foodColorInput = document.getElementById("foodColor");
-      const boardColorInput1 = document.getElementById("boardColor1");
-      const boardColorInput2 = document.getElementById("boardColor2");
-      const wallCollisionToggle = document.getElementById(
-        "wallCollisionToggle",
-      );
-      const wallCollisionValue = document.getElementById("wallCollisionValue");
-
-      const topBarField = document.getElementById("topBar");
-      const scoreField = document.getElementById("score");
-      const levelField = document.getElementById("level");
-      const speedField = document.getElementById("speed");
-      const gameControlsField = document.getElementById("gameControls");
-
-      document.addEventListener("visibilitychange", (event) => {
-        if (document.visibilityState === "hidden") {
-          mainDiv.appendChild(menu);
-          play = false;
-        }
-      });
-
-      // addEventListener
-      const addEvent = (id, type, func) => {
-        document.getElementById(id).addEventListener(type, func, false);
-      };
-
-      // addEventListener
-      const removeEvent = (id, type, func) => {
-        document.getElementById(id).addEventListener(type, func, false);
-      };
-
-      const handleMenuClicks = () => {
-        addEvent("play", "click", () => {
-          if (isGameOver()) {
-            setup();
-          }
-
-          menu.remove();
-          play = true;
-        });
-
-        addEvent("playAgain", "click", () => {
-          setup();
-          settingsField.remove();
-          gameOverField.remove();
-          menu.appendChild(menuButtons);
-          menu.remove();
-          play = true;
-        });
-
-        addEvent("returnToMenu", "click", () => {
-          settingsField.remove();
-          menu.appendChild(menuButtons);
-        });
-
-        // when in game over screen
-        addEvent("goToMenu", "click", () => {
-          settingsField.remove();
-          gameOverField.remove();
-          menu.appendChild(menuButtons);
-        });
-
-        addEvent("settings", "click", () => {
-          menuButtons.remove();
-          menu.appendChild(settingsField);
-        });
-
-        document.querySelectorAll("[id=cellSize]").forEach((img) => {
-          img.addEventListener("mousedown", (event) => {
-            const isPlus = event.target.getAttribute("value") === "plus";
-            let temp = cell + (isPlus ? +1 : -1);
-            // calculate next right size board
-            while (canvasSize % temp !== 0) {
-              isPlus ? temp++ : temp--;
-            }
-
-            if (temp > 200 || temp < 5) return;
-            BOARD_HEIGHT = Math.floor(canvasSize / temp);
-            BOARD_WIDTH = Math.floor(canvasSize / temp);
-            cellSizeValue.innerText = cell = temp;
-            setup();
-          });
-        });
-
-        document.querySelectorAll("[id=gameControls]").forEach((img) => {
-          img.addEventListener("click", (event) => {
-            setDirection(event.target.getAttribute("value"));
-          });
-        });
-
-        addEvent("boardColor1", "input", () => {
-          boardColor1 = boardColorInput1.value;
-          drawBoard();
-        });
-        addEvent("boardColor2", "input", () => {
-          boardColor2 = boardColorInput2.value;
-          drawBoard();
-        });
-
-        addEvent("snakeColor", "input", () => {
-          snakeColor = snakeColorInput.value;
-          drawBoard();
-        });
-
-        addEvent("foodColor", "input", () => {
-          foodColor = foodColorInput.value;
-          drawBoard();
-        });
-
-        addEvent("wallCollisionToggle", "click", () => {
-          wallCollision = !wallCollision;
-          document.getElementById("wallCollisionValue").innerText =
-            wallCollision ? " on " : " off ";
-        });
-
-        // **** Settings ends **** //
-      };
-
-      handleMenuClicks();
-      gameOverField.remove();
-      settingsField.remove();
-
-      const handleKeyPresses = () => {
-        document.addEventListener("keydown", (event) => {
-          if (!play) return;
-
-          const keyName = event.key;
-
-          if (keyName === "Escape") {
-            mainDiv.appendChild(menu);
-            play = false;
-          }
-          setDirection(keyName);
-        });
-      };
-
-      handleKeyPresses();
-
-      const setDirection = (type) => {
-        if (
-          ("ArrowLeft" === type || "left" === type || "a" === type) &&
-          isValidDirection("LEFT")
-        ) {
-          direction = "LEFT";
-        }
-        if (
-          ("ArrowRight" === type || "right" === type || "d" === type) &&
-          isValidDirection("RIGHT")
-        ) {
-          direction = "RIGHT";
-        }
-        if (
-          ("ArrowUp" === type || "up" === type || "w" === type) &&
-          isValidDirection("UP")
-        ) {
-          direction = "UP";
-        }
-        if (
-          ("ArrowDown" === type || "down" === type || "s" === type) &&
-          isValidDirection("DOWN")
-        ) {
-          direction = "DOWN";
-        }
-      };
 
       let cell = 50;
-      let board;
       let canvasSize = 500;
       let BOARD_HEIGHT = Math.floor(canvasSize / cell);
       let BOARD_WIDTH = Math.floor(canvasSize / cell);
@@ -359,7 +250,8 @@
       let snake;
       let food;
 
-      let stepsPerSecond = 5;
+      let baseSpeed = 3;
+      let stepsPerSecond = baseSpeed;
       let direction = "UP";
       let acc = 0;
       let score = 0;
@@ -370,55 +262,227 @@
       const bumb = new Audio("./bumb.wav");
 
       const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-      const source = audioCtx.createMediaElementSource(appleBite);
-      source.connect(audioCtx.destination);
+      const s0 = audioCtx.createMediaElementSource(appleBite);
+      s0.connect(audioCtx.destination);
+      const s1 = audioCtx.createMediaElementSource(bumb);
+      s1.connect(audioCtx.destination);
 
-      const source1 = audioCtx.createMediaElementSource(bumb);
-      source1.connect(audioCtx.destination);
-
-      const initInnerTexts = () => {
-        cellSizeValue.innerText = cell;
-        boardColorInput1.value = boardColor1;
-        boardColorInput2.value = boardColor2;
+      function syncUI() {
+        cellSizeValue.textContent = cell;
         snakeColorInput.value = snakeColor;
         foodColorInput.value = foodColor;
-        scoreField.innerText = score;
-        levelField.innerText = level;
-        speedField.innerText = stepsPerSecond;
-        wallCollisionValue.innerText = wallCollision ? " on " : " off ";
-      };
-      initInnerTexts();
+        boardColorInput1.value = boardColor1;
+        boardColorInput2.value = boardColor2;
 
-      const generateEmptyBoard = () => {
+        speedSetting.value = String(stepsPerSecond);
+        speedSettingValue.textContent = String(stepsPerSecond);
+
+        wallCollisionValue.textContent = wallCollision ? " on " : " off ";
+
+        scoreField.textContent = score;
+        levelField.textContent = level;
+        speedField.textContent = stepsPerSecond;
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") {
+          play = false;
+          show("menu");
+        }
+      });
+
+      overlay.addEventListener("click", (e) => {
+        const btn = e.target.closest("[data-action]");
+        if (!btn) return;
+
+        const action = btn.dataset.action;
+
+        if (action === "play") {
+          if (isGameOver()) setup();
+          play = true;
+          show("none");
+          return;
+        }
+
+        if (action === "openSettings") {
+          show("settings");
+          return;
+        }
+
+        if (action === "backToMenu") {
+          show("menu");
+          return;
+        }
+
+        if (action === "goMenu") {
+          show("menu");
+          return;
+        }
+
+        if (action === "playAgain") {
+          setup();
+          play = true;
+          show("none");
+          return;
+        }
+
+        if (action === "toggleWall") {
+          wallCollision = !wallCollision;
+          syncUI();
+          return;
+        }
+
+        if (action === "cellMinus" || action === "cellPlus") {
+          const dir = action === "cellPlus" ? 1 : -1;
+          let temp = cell + dir;
+
+          // keep board divisible
+          while (temp > 1 && canvasSize % temp !== 0) temp += dir;
+
+          if (temp > 200 || temp < 5) return;
+          cell = temp;
+          BOARD_HEIGHT = Math.floor(canvasSize / cell);
+          BOARD_WIDTH = Math.floor(canvasSize / cell);
+          setup();
+          return;
+        }
+      });
+
+      // Settings inputs
+      speedSetting.addEventListener("input", () => {
+        baseSpeed = Number(speedSetting.value);
+        speedSettingValue.textContent = String(baseSpeed);
+        // update immediately
+        stepsPerSecond = baseSpeed + Math.floor(score / (100 * level));
+        syncUI();
+      });
+
+      snakeColorInput.addEventListener("input", () => {
+        snakeColor = snakeColorInput.value;
+        drawBoard();
+      });
+
+      foodColorInput.addEventListener("input", () => {
+        foodColor = foodColorInput.value;
+        drawBoard();
+      });
+
+      boardColorInput1.addEventListener("input", () => {
+        boardColor1 = boardColorInput1.value;
+        drawBoard();
+      });
+
+      boardColorInput2.addEventListener("input", () => {
+        boardColor2 = boardColorInput2.value;
+        drawBoard();
+      });
+
+      // Mobile controls (data-dir)
+      controls.addEventListener("click", (e) => {
+        const img = e.target.closest("[data-dir]");
+        if (!img) return;
+        setDirection(img.dataset.dir);
+      });
+
+      // Keyboard
+      document.addEventListener("keydown", (event) => {
+        if (!play) return;
+
+        if (event.key === "Escape") {
+          play = false;
+          show("menu");
+          return;
+        }
+        setDirection(event.key);
+      });
+
+      function setDirection(type) {
+        if (
+          (type === "ArrowLeft" || type === "left" || type === "a") &&
+          isValidDirection("LEFT")
+        )
+          direction = "LEFT";
+        if (
+          (type === "ArrowRight" || type === "right" || type === "d") &&
+          isValidDirection("RIGHT")
+        )
+          direction = "RIGHT";
+        if (
+          (type === "ArrowUp" || type === "up" || type === "w") &&
+          isValidDirection("UP")
+        )
+          direction = "UP";
+        if (
+          (type === "ArrowDown" || type === "down" || type === "s") &&
+          isValidDirection("DOWN")
+        )
+          direction = "DOWN";
+      }
+
+      function isValidDirection(dir) {
+        if (!snake || snake.length < 2) return true;
+        if (dir === "LEFT") return snake[0].x - 1 !== snake[1].x;
+        if (dir === "RIGHT") return snake[0].x + 1 !== snake[1].x;
+        if (dir === "UP") return snake[0].y - 1 !== snake[1].y;
+        if (dir === "DOWN") return snake[0].y + 1 !== snake[1].y;
+        return true;
+      }
+
+      let board;
+
+      function generateEmptyBoard() {
         board = Array.from({ length: BOARD_HEIGHT }, () =>
           Array(BOARD_WIDTH).fill(0),
         );
-      };
+      }
+
+      function generateSnake() {
+        snake = [
+          { x: Math.floor(BOARD_WIDTH / 2), y: Math.floor(BOARD_HEIGHT / 2) },
+        ];
+      }
+
+      function generateFood() {
+        const totalCells = BOARD_WIDTH * BOARD_HEIGHT;
+        const occupied = new Set(
+          snake.map((seg) => seg.y * BOARD_WIDTH + seg.x),
+        );
+        const freeCells = [];
+        for (let i = 0; i < totalCells; i++)
+          if (!occupied.has(i)) freeCells.push(i);
+
+        if (freeCells.length === 0) return victory();
+
+        const index = freeCells[Math.floor(Math.random() * freeCells.length)];
+        food = { x: index % BOARD_WIDTH, y: Math.floor(index / BOARD_WIDTH) };
+      }
 
       function setup() {
         frameRate(30);
+
         canvasSize = window.innerWidth > 500 ? 500 : window.innerWidth;
         createCanvas(canvasSize, canvasSize, canvas);
 
-        while (canvasSize % cell !== 0) {
-          cell--;
-        }
+        while (canvasSize % cell !== 0) cell--;
 
         BOARD_HEIGHT = Math.floor(canvasSize / cell);
         BOARD_WIDTH = Math.floor(canvasSize / cell);
-        topBarField.style.width = canvasSize + "px";
-        gameControlsField.style.width = canvasSize + "px";
 
-        stepsPerSecond = Math.round(250 / cell);
-        describe("Snake");
+        topBar.style.width = canvasSize + "px";
+        controls.style.width = canvasSize + "px";
+
+        stepsPerSecond = cell > 40 ? 2 : baseSpeed;
+
         generateEmptyBoard();
         generateSnake();
         generateFood();
+
         score = 0;
         acc = 0;
         level = 1;
         direction = "UP";
-        initInnerTexts();
+
+        syncUI();
         drawBoard();
       }
 
@@ -431,31 +495,26 @@
           acc -= 1 / stepsPerSecond;
         }
 
-        if (isGameOver()) {
-          gameOver();
-          return;
-        }
+        if (isGameOver()) return gameOver();
 
         levelUp();
-
-        updateTopBar();
+        syncUI();
         drawBoard();
       }
 
-      const drawBoard = () => {
-        board.forEach((array, y) => {
-          array.forEach((element, x) => {
+      function drawBoard() {
+        for (let y = 0; y < BOARD_HEIGHT; y++) {
+          for (let x = 0; x < BOARD_WIDTH; x++) {
             stroke(0);
             fill((y + x) % 2 === 0 ? boardColor1 : boardColor2);
             rect(x * cell, y * cell, cell, cell);
-
             drawSnake(y, x);
             drawFood(y, x);
-          });
-        });
-      };
+          }
+        }
+      }
 
-      const move = () => {
+      function move() {
         const newHead = { ...snake[0] };
 
         if (direction === "UP") newHead.y -= 1;
@@ -465,12 +524,13 @@
 
         if (!wallCollision) {
           if (newHead.y >= BOARD_HEIGHT) newHead.y = 0;
-          if (newHead.y < 0) newHead.y = BOARD_HEIGHT;
+          if (newHead.y < 0) newHead.y = BOARD_HEIGHT - 1;
           if (newHead.x >= BOARD_WIDTH) newHead.x = 0;
-          if (newHead.x < 0) newHead.x = BOARD_WIDTH;
+          if (newHead.x < 0) newHead.x = BOARD_WIDTH - 1;
         }
 
         snake.unshift(newHead);
+
         if (canEatFood(newHead)) {
           appleBite.play();
           score += 10;
@@ -478,111 +538,52 @@
         } else {
           snake.pop();
         }
-      };
+      }
 
-      const isValidDirection = (direction) => {
-        if (snake.length < 2) return true;
+      function canEatFood(head) {
+        return head.x === food.x && head.y === food.y;
+      }
 
-        if (direction === "LEFT") return snake[0].x - 1 !== snake[1].x;
-        if (direction === "RIGHT") return snake[0].x + 1 !== snake[1].x;
-        if (direction === "UP") return snake[0].y - 1 !== snake[1].y;
-        if (direction === "DOWN") return snake[0].y + 1 !== snake[1].y;
-      };
-
-      const generateSnake = () => {
-        let te = Math.floor(BOARD_WIDTH / 2);
-        snake = [
-          { x: Math.floor(BOARD_WIDTH / 2), y: Math.floor(BOARD_HEIGHT / 2) },
-        ];
-      };
-
-      const generateFood = () => {
-        const totalCells = BOARD_WIDTH * BOARD_HEIGHT;
-        const occupied = new Set(
-          snake.map((seg) => seg.y * BOARD_WIDTH + seg.x),
-        );
-
-        const freeCells = [];
-
-        for (let i = 0; i < totalCells; i++) {
-          if (!occupied.has(i)) {
-            freeCells.push(i);
-          }
-        }
-
-        if (freeCells.length === 0) {
-          victory();
-          return;
-        }
-
-        const index = freeCells[Math.floor(Math.random() * freeCells.length)];
-
-        food = {
-          x: index % BOARD_WIDTH,
-          y: Math.floor(index / BOARD_WIDTH),
-        };
-      };
-
-      const levelUp = () => {
+      function levelUp() {
+        // keep your old scaling but based on baseSpeed
         stepsPerSecond = stepsPerSecond + Math.floor(score / (100 * level));
         level = 1 + Math.floor(score / 100);
-      };
+      }
 
-      const victory = () => {
-        food = { x: null, y: null };
-        mainDiv.appendChild(menu);
-        menuButtons.remove();
-        menu.appendChild(gameOverField);
-        gameOverScore.innerText = score;
-        gameOverText.innerText = "Victory!";
-        gameOverText.classList.remove("text-red-500");
-        gameOverText.classList.add("text-green-500");
-        play = false;
-      };
-
-      const canEatFood = (head) => {
-        return head.x === food.x && head.y === food.y ? true : false;
-      };
-
-      const updateTopBar = () => {
-        scoreField.innerText = score;
-        speedField.innerText = stepsPerSecond;
-        levelField.innerText = level;
-      };
-
-      const isGameOver = () => {
-        if (
-          (snake[0].x < 0 ||
+      function isGameOver() {
+        if (wallCollision) {
+          if (
+            snake[0].x < 0 ||
             snake[0].x >= BOARD_WIDTH ||
             snake[0].y < 0 ||
-            snake[0].y >= BOARD_HEIGHT) &&
-          wallCollision
-        ) {
-          return true;
+            snake[0].y >= BOARD_HEIGHT
+          )
+            return true;
         }
 
         if (
-          snake
-            .slice(1)
-            .some((part) => part.x === snake[0].x && part.y === snake[0].y)
-        ) {
+          snake.slice(1).some((p) => p.x === snake[0].x && p.y === snake[0].y)
+        )
           return true;
-        }
-
         return false;
-      };
+      }
 
-      const gameOver = () => {
+      function gameOver() {
         bumb.play();
-        mainDiv.appendChild(menu);
-        menuButtons.remove();
-        menu.appendChild(gameOverField);
-        gameOverText.innerText = "Game Over!";
-        gameOverText.classList.remove("text-green-500");
-        gameOverText.classList.add("text-red-500");
-        gameOverScore.innerText = score;
         play = false;
-      };
+        gameOverText.textContent = "Game Over!";
+        gameOverText.className = "mt-2 text-red-500";
+        gameOverScore.textContent = String(score);
+        show("gameover");
+      }
+
+      function victory() {
+        play = false;
+        gameOverText.textContent = "Victory!";
+        gameOverText.className = "mt-2 text-green-500";
+        gameOverScore.textContent = String(score);
+        show("gameover");
+      }
 
       const drawSnakeEyes = (x, y) => {
         const dx = food.x - snake[0].x;
@@ -634,23 +635,25 @@
         }
       };
 
-      const drawSnake = (y, x) => {
-        if (snake.some((part) => part.x === x && part.y === y)) {
+      function drawSnake(y, x) {
+        if (snake.some((p) => p.x === x && p.y === y)) {
           fill(snakeColor);
           rect(x * cell, y * cell, cell, cell);
-
           if (snake[0].x === x && snake[0].y === y) {
             drawSnakeEyes(x, y);
           }
         }
-      };
+      }
 
-      const drawFood = (y, x) => {
+      function drawFood(y, x) {
         if (x === food.x && y === food.y) {
           fill(foodColor);
           rect(x * cell, y * cell, cell, cell);
         }
-      };
+      }
+
+      show("menu");
+      syncUI();
     </script>
   </body>
 </html>
