@@ -27,9 +27,8 @@
 
       // time settings
       let deltaSum = 0;
-      let interval = 1000;
+      let interval = 100;
 
-      // --- P5 DRAWING ---
       function setup() {
         const c = createCanvas(COLS * CELL, ROWS * CELL);
         c.parent("canvasWrap");
@@ -38,20 +37,12 @@
       }
 
       function addRandomAlives() {
-        for (let i = 0; i < 50; i++) {
+        for (let i = 0; i < 300; i++) {
           const x = Math.floor(Math.random() * ROWS);
           const y = Math.floor(Math.random() * COLS);
-
-          board[y][x] += 1;
+          board[y][x] = 1;
         }
-
-        board[9][10] = 1;
-        board[10][10] = 1;
-        board[11][10] = 1;
-        board[10][11] = 1;
-        board[10][10] = 1;
-
-        tempBoard = board;
+        tempBoard = structuredClone(board);
       }
 
       function simulate() {
@@ -59,14 +50,14 @@
         for (let y = 0; y < ROWS; y++) {
           for (let x = 0; x < COLS; x++) {
             checkNeighbours(y, x);
-            drawCell(x, y, tempBoard[y][x]);
+            drawCell(y, x, tempBoard[y][x]);
           }
         }
-        board = tempBoard;
+        board = structuredClone(tempBoard);
       }
 
       function hasNeighbour(y, x) {
-        if (y < 0 || y >= COLS || y > ROWS || x < 0 || x > COLS || x > ROWS) {
+        if (y < 0 || y >= COLS || y > ROWS || x < 0 || x > COLS || x >= ROWS) {
           return 0;
         }
 
@@ -91,11 +82,6 @@
         sum = sum + hasNeighbour(y + 1, x);
         sum = sum + hasNeighbour(y + 1, x + 1);
 
-        console.log(sum);
-        if (alive && sum === 2) {
-          tempBoard[y][x] = 0;
-        }
-
         if ((alive && sum < 2) || (alive && sum > 3)) {
           tempBoard[y][x] = 0;
         }
@@ -103,13 +89,6 @@
         if (!alive && sum === 3) {
           tempBoard[y][x] = 1;
         }
-      }
-
-      function drawCell(x, y, colorNumber) {
-        if (colorNumber === 0) fill(255, 240, 255);
-        if (colorNumber === 1) fill(0, 0, 40);
-
-        rect(x * CELL, y * CELL, CELL - 1, CELL - 1);
       }
 
       function draw() {
@@ -130,6 +109,13 @@
           simulate();
           deltaSum = 0;
         }
+      }
+
+      function drawCell(x, y, colorNumber) {
+        if (colorNumber === 0) fill(255, 240, 255);
+        if (colorNumber === 1) fill(0, 0, 40);
+
+        rect(x * CELL, y * CELL, CELL - 1, CELL - 1);
       }
     </script>
   </body>
