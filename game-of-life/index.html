@@ -11,8 +11,54 @@
   <body
     class="h-full m-0 bg-gradient-to-b from-yellow-200 via-yellow-100 to-orange-400"
   >
-    <div class="flex justify-center items-center h-full">
-      <div id="canvasWrap"></div>
+    <div class="flex flex-col justify-center items-center h-full">
+      <div class="gap-2 flex flex-col" id="canvasWrap">
+        <div class="flex flex-row gap-6">
+          <div class="flex flex-col">
+            <label for="interval"> Interval (ms)</label>
+            <input
+              id="interval"
+              class="bg-inherit border border-black outline-none focus:border-dashed"
+              type="number"
+              value="100"
+              min="0"
+              max="1000"
+              step="1"
+            />
+          </div>
+          <div class="flex flex-col">
+            <label for="randoms"> Randoms</label>
+            <input
+              id="randoms"
+              class="bg-inherit border border-black outline-none focus:border-dashed"
+              type="number"
+              value="300"
+              min="0"
+              max="1000"
+              step="1"
+            />
+          </div>
+
+          <div class="flex items-end gap-2">
+            <button
+              id="play"
+              value="stop"
+              class="border border-black h-fit p-1 active:border-dashed"
+            >
+              Stop
+            </button>
+          </div>
+
+          <div class="flex items-end gap-2">
+            <button
+              id="startBtn"
+              class="border border-black h-fit p-1 active:border-dashed"
+            >
+              Draw
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -24,10 +70,33 @@
       let tempBoard = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
       let simulationOver = false;
       let generationCount = 1;
+      let randomAlives = 300;
 
       // time settings
       let deltaSum = 0;
       let interval = 100;
+      let play = true;
+
+      document.getElementById("play").addEventListener("click", (event) => {
+        const stop = event.target.value === "stop";
+        play = !stop;
+        event.target.innerText = event.target.value = stop ? "play" : "stop";
+      });
+
+      document.getElementById("interval").addEventListener("input", (event) => {
+        interval = event.target.value;
+      });
+
+      document.getElementById("randoms").addEventListener("input", (event) => {
+        randoms = event.target.value;
+      });
+
+      function getSettings() {
+        const interval = Number(intervalInput.value);
+        const randomCount = Number(randomsInput.value);
+
+        return { interval, randomCount };
+      }
 
       function setup() {
         const c = createCanvas(COLS * CELL, ROWS * CELL);
@@ -37,7 +106,7 @@
       }
 
       function addRandomAlives() {
-        for (let i = 0; i < 300; i++) {
+        for (let i = 0; i < randomAlives; i++) {
           const x = Math.floor(Math.random() * ROWS);
           const y = Math.floor(Math.random() * COLS);
           board[y][x] = 1;
@@ -75,7 +144,6 @@
         sum = sum + hasNeighbour(y - 1, x + 1);
 
         sum = sum + hasNeighbour(y, x - 1);
-        // the cell how check other neighbours
         sum = sum + hasNeighbour(y, x + 1);
 
         sum = sum + hasNeighbour(y + 1, x - 1);
@@ -99,6 +167,7 @@
           text("Press R to restart", width / 2, height / 2 + 18);
           return;
         }
+        if (!play) return;
 
         tick(deltaTime);
       }
