@@ -51,11 +51,12 @@
 
           <div class="flex items-end gap-2">
             <button
-              id="startBtn"
+              id="refreshBtn"
               class="border border-black h-fit p-1 active:border-dashed"
             >
-              Draw
+              Refresh
             </button>
+            <span id="generationCounter" class="h-fit pb-1">Generation: 1</span>
           </div>
         </div>
       </div>
@@ -88,7 +89,16 @@
       });
 
       document.getElementById("randoms").addEventListener("input", (event) => {
-        randoms = event.target.value;
+        randomAlives = event.target.value;
+      });
+
+      document.getElementById("refreshBtn").addEventListener("click", () => {
+        board = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        tempBoard = Array.from({ length: ROWS }, () => Array(COLS).fill(0));
+        addRandomAlives();
+        simulationOver = false;
+        generationCount = 1;
+        renderGenerationCount();
       });
 
       function getSettings() {
@@ -102,6 +112,7 @@
         const c = createCanvas(COLS * CELL, ROWS * CELL);
         c.parent("canvasWrap");
         addRandomAlives();
+        renderGenerationCount();
         noStroke();
       }
 
@@ -123,6 +134,13 @@
           }
         }
         board = structuredClone(tempBoard);
+        generationCount += 1;
+        renderGenerationCount();
+      }
+
+      function renderGenerationCount() {
+        document.getElementById("generationCounter").innerText =
+          `Generation: ${generationCount}`;
       }
 
       function hasNeighbour(y, x) {
